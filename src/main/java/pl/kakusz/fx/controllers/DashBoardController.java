@@ -1,18 +1,22 @@
 package pl.kakusz.fx.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import pl.kakusz.fx.ControllerManager;
 
 import java.io.IOException;
 import java.util.Objects;
 
 public class DashBoardController {
 
+    public Button logoutButton;
     @FXML
     private ImageView logoImage;
 
@@ -27,5 +31,15 @@ public class DashBoardController {
         stage.setTitle("Panel główny");
         stage.setScene(new Scene(parent));
         stage.show();
+    }
+
+    public void handleLogout() {
+        Stage stage = (Stage) logoutButton.getScene().getWindow();
+        try {
+            ControllerManager.getInstance().getLoginController().showWindow(stage);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
