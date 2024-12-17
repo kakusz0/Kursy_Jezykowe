@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:controller="pl.kakusz.fx.controllers.RegisterController" prefHeight="650" prefWidth="500" style="-fx-background-color: #1d2537;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <!-- Główna zawartość -->
+    <center>
+        <VBox fx:id="mainContainer" alignment="CENTER" layoutX="50" layoutY="50" spacing="15">
+            <!-- Dodanie obrazu logo -->
+            <ImageView fx:id="logoImage" fitHeight="180.0" fitWidth="180.0" preserveRatio="true" style="-fx-padding: 10; -fx-background-color: red;" />
+
+            <!-- Tytuł aplikacji -->
+            <Label style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;" text="Rejestracja" />
+
+            <!-- Formularz rejestracji -->
+            <VBox fx:id="formContainer" alignment="CENTER" maxWidth="300" spacing="10">
+                <TextField fx:id="usernameField" promptText="Nazwa użytkownika" style="-fx-background-radius: 5; -fx-background-color: #2e3b54; -fx-text-fill: white;" />
+                <TextField fx:id="emailField" promptText="Adres E-Mail" style="-fx-background-radius: 5; -fx-background-color: #2e3b54; -fx-text-fill: white;" />
+                <PasswordField fx:id="passwordField" promptText="Hasło" style="-fx-background-radius: 5; -fx-background-color: #2e3b54; -fx-text-fill: white;" />
+                <PasswordField fx:id="repeatPasswordField" promptText="Powtórz hasło" style="-fx-background-radius: 5; -fx-background-color: #2e3b54; -fx-text-fill: white;" />
+
+                <!-- Zaktualizowana Captcha -->
+                <VBox fx:id="captchaContainer" alignment="CENTER" spacing="5">
+                    <!-- Obrazek Captcha -->
+                    <ImageView fx:id="captchaImage" fitWidth="200" fitHeight="50" preserveRatio="true" style="-fx-padding: 10;" />
+                    <!-- Pole do wpisania kodu Captcha -->
+                    <TextField fx:id="captchaField" promptText="Wpisz kod Captcha" style="-fx-background-radius: 5; -fx-background-color: #2e3b54; -fx-text-fill: white;" />
+                </VBox>
+
+            </VBox>
+
+            <!-- Zgoda użytkownika -->
+            <CheckBox fx:id="termsCheckBox" maxWidth="300" style="-fx-text-fill: white; -fx-wrap-text: true; -fx-font-size: 12px;" text="Przeczytałem i akceptuję ogólne warunki handlowe oraz politykę prywatności." wrapText="true" />
+
+            <!-- Przycisk rejestracji -->
+            <Button fx:id="registerButton" onAction="#handleRegister" maxWidth="200" style="-fx-background-color: #3273dc; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 5;" text="Utwórz konto" />
+            <!-- Przycisk powrotu do logowania -->
+            <Button fx:id="backToLoginButton" onAction="#handleBackToLogin" maxWidth="200" style="-fx-background-color: #2e3b54; -fx-text-fill: white; -fx-font-size: 12px; -fx-background-radius: 5;" text="Powrót do logowania" />
+
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,30 @@
+package pl.kakusz;
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
+import pl.kakusz.fx.ControllerManager;
+import pl.kakusz.database.managers.HibernateManager;
+
+import java.io.IOException;
+
+@Getter
+@Setter
+public class Main extends Application {
+
+
+    @Override
+    public void start(Stage stage) throws IOException {
+        ControllerManager.getInstance().getLoginController().showWindow(stage);
+    }
+
+    public static void main(String[] args) {
+        try {
+            launch(args);
+        } finally {
+            HibernateManager.shutdown();
+        }
+
+    }
+}
