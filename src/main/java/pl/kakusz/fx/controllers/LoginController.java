@@ -11,6 +11,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import pl.kakusz.database.managers.DatabaseManager;
 import pl.kakusz.database.objects.User;
@@ -33,6 +34,16 @@ public class LoginController {
     @FXML
     public void initialize() {
         logoImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png"))));
+        emailField.setOnKeyPressed(event -> {
+            if (Objects.requireNonNull(event.getCode()) == KeyCode.ENTER) {
+                handleLogin();
+            }
+        });
+        passwordField.setOnKeyPressed(event -> {
+            if (Objects.requireNonNull(event.getCode()) == KeyCode.ENTER) {
+                handleLogin();
+            }
+        });
     }
 
     @FXML
@@ -64,15 +75,12 @@ public class LoginController {
         }
     }
 
-
     private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(alertType);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private boolean isEmailValid(String email) {
@@ -99,7 +107,6 @@ public class LoginController {
             return false;
         }
 
-
         if (passwordField.getText().length() < 5) {
             showAlert(Alert.AlertType.ERROR, "Błąd", "Hasło musi zawierać conajmniej 5 znaków.");
             return false;
@@ -110,6 +117,8 @@ public class LoginController {
             showAlert(Alert.AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
             return false;
         }
+
+        DatabaseManager.getInstance().setCurrentUser(user);
 
         return true;
     }
