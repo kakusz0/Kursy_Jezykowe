@@ -118,7 +118,7 @@ public class LoginController {
             return false;
         }
 
-        DatabaseManager.getInstance().setCurrentUser(user);
+        DatabaseManager.getInstance().getUserManager().setCurrentUser(user);
 
         return true;
     }

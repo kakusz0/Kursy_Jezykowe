@@ -1,5 +1,7 @@
 package pl.kakusz.database.managers;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -7,11 +9,13 @@ import org.mindrot.jbcrypt.BCrypt;
 import pl.kakusz.database.objects.User;
 
 public class UserManager {
-
     private final SessionFactory sessionFactory;
+    @Setter
+    @Getter
+    private User currentUser = null;
 
-    public UserManager() {
-        this.sessionFactory = HibernateManager.getSessionFactory();
+    public UserManager(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     public void saveUser(User user) {

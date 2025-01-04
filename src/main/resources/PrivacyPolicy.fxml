@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="400" prefWidth="600" style="-fx-background-color: #1d2537;" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.kakusz.fx.controllers.PrivacyPolicyController">
+    <center>
+        <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+            <Label style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;" text="Polityka Prywatności" />
+<TextArea fx:id="privacyPolicyTextArea" editable="false" style="-fx-control-inner-background: #1d2537; -fx-text-fill: white; -fx-border-color: #2e3b54; -fx-border-radius: 0; -fx-background-radius: 0;" wrapText="true">
+            <cursor>
+               <Cursor fx:constant="DISAPPEAR" />
+            </cursor></TextArea>
+
+
+        <Button fx:id="backToRegisterButton" maxWidth="200" onAction="#handleBackToRegister" style="-fx-background-color: #2e3b54; -fx-text-fill: white; -fx-font-size: 12px; -fx-background-radius: 5;" text="Powrót do rejestracji" />
+
+        </VBox>
+    </center>
+</BorderPane>

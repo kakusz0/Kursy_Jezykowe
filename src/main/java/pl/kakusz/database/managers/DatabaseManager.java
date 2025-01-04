@@ -1,22 +1,22 @@
 package pl.kakusz.database.managers;
 
 import lombok.Getter;
-import lombok.Setter;
-import pl.kakusz.database.objects.User;
+import org.hibernate.SessionFactory;
 
 
 @Getter
 public class DatabaseManager {
     private final UserManager userManager;
+    private final CourseManager courseManager;
 
     private static DatabaseManager instance;
+    private final SessionFactory sessionFactory;
 
-    @Setter
-    private User currentUser = null;
 
     public DatabaseManager() {
-        this.userManager = new UserManager();
-
+        this.sessionFactory = HibernateManager.getSessionFactory();
+        this.userManager = new UserManager(this.sessionFactory);
+        this.courseManager = new CourseManager(this.sessionFactory);
     }
 
     public static DatabaseManager getInstance() {

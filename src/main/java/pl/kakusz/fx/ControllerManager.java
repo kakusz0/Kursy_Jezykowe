@@ -1,10 +1,7 @@
 package pl.kakusz.fx;
 
 import lombok.Getter;
-import pl.kakusz.fx.controllers.DashBoardController;
-import pl.kakusz.fx.controllers.LoginController;
-import pl.kakusz.fx.controllers.RegisterController;
-import pl.kakusz.fx.controllers.ResetPasswordController;
+import pl.kakusz.fx.controllers.*;
 
 @Getter
 public class ControllerManager {
@@ -15,6 +12,7 @@ public class ControllerManager {
     private final RegisterController registerController;
 
     private final ResetPasswordController resetPasswordController;
+    private final PrivacyPolicyController privacyPolicyController;
     private static ControllerManager instance;
 
     public ControllerManager() {
@@ -22,6 +20,7 @@ public class ControllerManager {
         this.registerController = new RegisterController();
         this.resetPasswordController = new ResetPasswordController();
         this.dashBoardController = new DashBoardController();
+        this.privacyPolicyController = new PrivacyPolicyController();
     }
 
     public static ControllerManager getInstance() {

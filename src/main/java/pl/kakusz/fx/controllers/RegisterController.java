@@ -3,6 +3,7 @@ package pl.kakusz.fx.controllers;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -18,6 +19,7 @@ import pl.kakusz.fx.ControllerManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,52 +42,15 @@ public class RegisterController {
     private CheckBox termsCheckBox;
     @FXML
     private Button registerButton, backToLoginButton;
+    @FXML
+    private Hyperlink privacyPolicyLink;
 
-    private String captchaText;
 
     @FXML
     public void initialize() {
         logoImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png"))));
-        generateCaptcha();
     }
 
-    private String generateRandomText(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        Random rand = new Random();
-        return IntStream.range(0, length)
-                .mapToObj(i -> String.valueOf(characters.charAt(rand.nextInt(characters.length()))))
-                .collect(Collectors.joining());
-    }
-
-    private void generateCaptcha() {
-        captchaText = generateRandomText(5);
-        BufferedImage bufferedImage = new BufferedImage(200, 50, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = bufferedImage.createGraphics();
-
-        graphics.setColor(new Color(33, 47, 73));
-        graphics.fillRect(0, 0, 200, 50);
-
-        graphics.setColor(Color.GRAY);
-        Random rand = new Random();
-        IntStream.range(0, 5).forEach(i -> graphics.drawLine(rand.nextInt(200), rand.nextInt(50), rand.nextInt(200), rand.nextInt(50)));
-
-        graphics.setColor(Color.BLACK);
-        graphics.setFont(new Font("Arial", Font.BOLD, 35));
-        graphics.drawString(captchaText, 50, 40);
-        graphics.dispose();
-
-        try {
-            captchaImage.setImage(new Image(new ByteArrayInputStream(toByteArray(bufferedImage))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private byte[] toByteArray(BufferedImage bufferedImage) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(bufferedImage, "png", baos);
-        return baos.toByteArray();
-    }
 
     @FXML
     public void handleRegister() {
@@ -147,12 +112,6 @@ public class RegisterController {
             return false;
         }
 
-        if (!captchaField.getText().equals(captchaText)) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Captcha jest niepoprawna.");
-            generateCaptcha();
-            captchaField.clear();
-            return false;
-        }
 
         return true;
     }
@@ -191,6 +150,12 @@ public class RegisterController {
 
 
     }
+
+    @FXML
+    private void handlePrivacyPolicyClick() throws IOException {
+        ControllerManager.getInstance().getPrivacyPolicyController().showWindow((Stage) privacyPolicyLink.getScene().getWindow());
+    }
+
 
     public void showWindow(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Register.fxml"));

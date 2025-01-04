@@ -3,17 +3,33 @@ package pl.kakusz.database.objects;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
+
 @Getter
 @Setter
+@Entity
+@Table(name = "courses")
 public class Course {
 
-    private String name;
-    private String description;
-    private int price;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Course(String name, String description, int price) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-    }
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
+    private BigDecimal price;
+
+    @Column(nullable = false)
+    private Date duration;
+
+
+
+
 }

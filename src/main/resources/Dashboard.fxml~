@@ -39,7 +39,7 @@
     <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Kup Kurs" />
 
         <!-- Responsywny ScrollPane -->
-        <ScrollPane fx:id="scrollCourse" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS" style="-fx-background-color: #1d2537; -fx-border-color: transparent;">
+        <ScrollPane fx:id="scrollCourse" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS" style="-fx-background-color: #1d2537\; -fx-border-color: transparent;">
                 <VBox fx:id="courseVBox" alignment="CENTER" spacing="10" style="-fx-padding: 10; -fx-background-color: #1d2537;">
                 <!-- Zawartość kursów (np. przyciski, opisy) -->
             </VBox>
