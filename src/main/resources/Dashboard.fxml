@@ -15,7 +15,7 @@
             <Label style="-fx-text-fill: gray; -fx-font-size: 12px;" text="Profil" />
             <Button fx:id="myCoursesButton" style="-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;" text="Moje kursy" />
             <Button fx:id="buyCourseButton" onAction="#handleBuyCourseClick" style="-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;" text="Kup kurs" />
-            <Button fx:id="transactionsButton" style="-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;" text="Transakcje" />
+            <Button fx:id="transactionsButton" onAction="#handleTransactionsClick" style="-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;" text="Transakcje" />
             <Label style="-fx-text-fill: gray; -fx-font-size: 12px;" text="Aplikacja" />
             <Button fx:id="logoutButton" onMouseClicked="#handleLogout" style="-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;" text="Wyloguj się" />
         </VBox>
@@ -46,7 +46,36 @@
         </ScrollPane>
 
 </VBox>
+            <VBox fx:id="transactionsContainer" alignment="CENTER" spacing="20" style="-fx-padding: 20;" visible="false">
+                <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Dodaj środki" />
 
+                <!-- Wybór metod płatności -->
+                <VBox alignment="CENTER" spacing="10">
+                    <Label style="-fx-text-fill: white;" text="Metoda płatności" />
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button style="-fx-background-color: #004e8a; -fx-text-fill: white;" text="PayPal"  />
+                        <Button style="-fx-background-color: #800080; -fx-text-fill: white;" text="Paysafecard" />
+                        <Button style="-fx-background-color: #800000; -fx-text-fill: white;" text="Karta kredytowa" />
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button style="-fx-background-color: #ff4500; -fx-text-fill: white;" text="Google Pay" />
+                        <Button style="-fx-background-color: #000; -fx-text-fill: white;" text="Apple Pay" />
+                        <Button style="-fx-background-color: #FFA500; -fx-text-fill: white;" text="Crypto" />
+                    </HBox>
+                </VBox>
+
+                <!-- Pole do wprowadzenia kwoty -->
+                <VBox spacing="10" alignment="CENTER">
+                    <Label style="-fx-text-fill: white;" text="Kwota:" />
+                    <TextField fx:id="amountField" promptText="Podaj kwotę" style="-fx-background-color: #2e3b54; -fx-text-fill: white;" />
+                </VBox>
+
+                <!-- Przyciski weryfikacji -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Button style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Doładuj" onAction="#handleAddFunds" />
+
+                </HBox>
+            </VBox>
         </StackPane>
     </center>
 </BorderPane>

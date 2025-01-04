@@ -5,7 +5,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,8 +28,8 @@ public class Course {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Column(nullable = false)
-    private Date duration;
+    @ManyToMany(mappedBy = "courses")
+    private List<User> users = new ArrayList<>();
 
 
 

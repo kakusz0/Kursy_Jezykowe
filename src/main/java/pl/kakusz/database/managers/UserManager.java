@@ -2,9 +2,11 @@ package pl.kakusz.database.managers;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.mindrot.jbcrypt.BCrypt;
 import pl.kakusz.database.objects.User;
 
@@ -29,6 +31,31 @@ public class UserManager {
             e.printStackTrace();
         }
     }
+
+    public void updateUserBalance(User user) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+
+            // Aktualizacja danych użytkownika
+            session.update(user);
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            throw new RuntimeException("Nie udało się zaktualizować balansu użytkownika", e);
+        }
+    }
+
+    public User getCurrentUserWithCourses(Long userId) {
+        try (Session session = sessionFactory.openSession()) {
+            String hql = "SELECT u FROM User u LEFT JOIN FETCH u.courses WHERE u.id = :userId";
+            Query<User> query = session.createQuery(hql, User.class);
+            query.setParameter("userId", userId);
+            return query.uniqueResult(); // Zwraca użytkownika z kolekcją courses załadowaną
+        }
+    }
+
 
     private boolean existsByField(String fieldName, String value) {
         try (Session session = sessionFactory.openSession()) {

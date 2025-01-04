@@ -68,7 +68,6 @@ public class RegisterController {
         newUser.setUsername(usernameField.getText());
         newUser.setEmail(emailField.getText());
         newUser.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt(12)));
-        newUser.setBalance(0.0);
         newUser.setRole("USER");
         return newUser;
     }
