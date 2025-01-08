@@ -28,9 +28,6 @@ public class Course {
     @Column(nullable = false)
     private Double price;
 
-    @Column(nullable = false)
-    private String link;
-
     @ManyToMany(mappedBy = "courses")
     private List<User> users = new ArrayList<>();
 

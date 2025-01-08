@@ -13,7 +13,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import org.mindrot.jbcrypt.BCrypt;
 import pl.kakusz.database.managers.DatabaseManager;
+import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
 import pl.kakusz.fx.ControllerManager;
 
@@ -44,6 +46,7 @@ public class LoginController {
                 handleLogin();
             }
         });
+
     }
 
     @FXML
@@ -118,7 +121,13 @@ public class LoginController {
             return false;
         }
 
+        if (!BCrypt.checkpw(passwordField.getText(), user.getPassword())) {
+            showAlert(Alert.AlertType.ERROR, "Błąd", "Podane hasło jest niepoprawne.");
+            return false;
+        }
+
         DatabaseManager.getInstance().getUserManager().setCurrentUser(user);
+
 
         return true;
     }

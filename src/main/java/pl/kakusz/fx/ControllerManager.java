@@ -21,6 +21,7 @@ public class ControllerManager {
         this.resetPasswordController = new ResetPasswordController();
         this.dashBoardController = new DashBoardController();
         this.privacyPolicyController = new PrivacyPolicyController();
+
     }
 
     public static ControllerManager getInstance() {

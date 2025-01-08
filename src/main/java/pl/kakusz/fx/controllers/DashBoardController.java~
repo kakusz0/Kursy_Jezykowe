@@ -41,7 +41,7 @@ public class DashBoardController {
     @FXML
     private Label usernameLabel, idKontaLabel, accountBalanceLabel;
     @FXML
-    private ImageView logoImage, logoImage2;
+    private ImageView logoImage;
     @FXML
     private Button logoutButton;
     @FXML
@@ -57,7 +57,7 @@ public class DashBoardController {
     @FXML
     public void initialize() {
         logoImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png"))));
-        logoImage2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png"))));
+
         currentUser = DatabaseManager.getInstance().getUserManager()
                 .getCurrentUserWithCourses(DatabaseManager.getInstance().getUserManager().getCurrentUser().getId());
 

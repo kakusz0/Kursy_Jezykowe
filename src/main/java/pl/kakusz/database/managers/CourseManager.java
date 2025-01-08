@@ -21,6 +21,51 @@ public class CourseManager {
         loadCourses();
     }
 
+    public void deleteCourse(String courseName) {
+        Session session = sessionFactory.openSession();
+        try {
+            session.beginTransaction();
+            Course course = session.get(Course.class, courseName);
+            session.delete(course);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
+
+
+    public Course getCourseByName(String courseName) {
+        Session session = sessionFactory.openSession();
+        Course course = null;
+
+        try {
+            course = session.get(Course.class, courseName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return course;
+    }
+    public Course getCourseById(Long courseId) {
+        Session session = sessionFactory.openSession();
+        Course course = null;
+
+        try {
+            course = session.get(Course.class, courseId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return course;
+    }
+
     public void loadCourses() {
         Session session = sessionFactory.openSession();
         try {
@@ -40,4 +85,19 @@ public class CourseManager {
     }
 
 
+    public void addCourse(Course course) {
+        Session session = sessionFactory.openSession();
+        try {
+            session.beginTransaction();
+            session.save(course);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
 }

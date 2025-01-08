@@ -54,7 +54,7 @@
                 <VBox alignment="CENTER" spacing="10" VBox.vgrow="ALWAYS">
                     <Label style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" text="Najpopularniejsze kursy" />
 
-                    <FlowPane alignment="CENTER" hgap="20" maxWidth="800" prefWrapLength="600" vgap="20">
+                    <FlowPane alignment="CENTER" hgap="0" maxWidth="800" prefWrapLength="600" vgap="20">
                         <!-- Kurs 1 -->
                         <VBox alignment="CENTER" prefWidth="180" spacing="5" style="-fx-background-color: #2e3b54; -fx-background-radius: 10; -fx-padding: 10;">
                             <Label style="-fx-text-fill: white; -fx-font-size: 14px;" text="Kurs Java" />

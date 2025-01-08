@@ -8,7 +8,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.mindrot.jbcrypt.BCrypt;
+import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
+
+import javax.persistence.EntityTransaction;
 
 public class UserManager {
     private final SessionFactory sessionFactory;
@@ -32,9 +35,28 @@ public class UserManager {
         }
     }
 
-    public void updateUserBalance(User user) {
+    public void updateUserCourses(User user) {
+        Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
+
+        try {
+            transaction = session.beginTransaction();
+            session.merge(user);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }finally {
+            session.close();
+        }
+    }
+    public void updateUserBalance(User user) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+
+        try {
             transaction = session.beginTransaction();
 
             // Aktualizacja danych użytkownika
@@ -43,17 +65,27 @@ public class UserManager {
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
-            throw new RuntimeException("Nie udało się zaktualizować balansu użytkownika", e);
+            throw new ArithmeticException("Nie udało się zaktualizować balansu użytkownika");
+        }finally {
+            session.close();
         }
     }
 
     public User getCurrentUserWithCourses(Long userId) {
-        try (Session session = sessionFactory.openSession()) {
-            String hql = "SELECT u FROM User u LEFT JOIN FETCH u.courses WHERE u.id = :userId";
-            Query<User> query = session.createQuery(hql, User.class);
-            query.setParameter("userId", userId);
-            return query.uniqueResult(); // Zwraca użytkownika z kolekcją courses załadowaną
+        Session session = sessionFactory.openSession();
+        User user = null;
+
+        try {
+            String hql = "FROM User u LEFT JOIN FETCH u.courses WHERE u.id = :userId";
+            user = session.createQuery(hql, User.class)
+                    .setParameter("userId", userId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close(); // Zamknij sesję
         }
+        return user;
     }
 
 
@@ -119,6 +151,56 @@ public class UserManager {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public void deleteUser(User userByEmail) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            session.delete(userByEmail);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        }finally {
+            session.close();
+        }
+    }
+
+    public void handleAssignCourse(User userByEmail, String courseName) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, userByEmail.getId());
+            user.getCourses().add(session.get(Course.class, courseName));
+            session.update(user);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        }finally {
+            session.close();
+        }
+    }
+
+    public void handleRemoveCourse(User userByEmail, String courseName) {
+
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, userByEmail.getId());
+            user.getCourses().remove(session.get(Course.class, courseName));
+            session.update(user);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        }finally {
+            session.close();
         }
     }
 }
