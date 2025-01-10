@@ -397,9 +397,7 @@ public class DashBoardController {
     private void handleDeleteCourse() {
         try {
             String courseName = (deleteCourseIdField.getText());
-
-
-            Course course = DatabaseManager.getInstance().getCourseManager().getCourseByName(courseName); // Pobierz kurs po ID
+            Course course = DatabaseManager.getInstance().getCourseManager().getCourseByName(courseName);
             if (course == null) {
                 showAlert(Alert.AlertType.ERROR, "Błąd", "Kurs o podanym ID nie istnieje.");
             } else {
