@@ -40,5 +40,6 @@ public class PrivacyPolicyController {
         stage.setTitle("Polityka Prywatności");
         stage.setScene(new Scene(root));
         stage.show();
+        stage.centerOnScreen();
     }
 }

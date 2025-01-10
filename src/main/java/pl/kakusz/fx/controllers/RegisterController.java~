@@ -162,8 +162,6 @@ public class RegisterController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Register.fxml"));
         Parent root = loader.load();
         stage.setTitle("Rejestracja");
-        stage.setMinHeight(800);
-        stage.setMinWidth(600);
         stage.setScene(new Scene(root));
         stage.show();
     }

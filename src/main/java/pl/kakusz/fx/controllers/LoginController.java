@@ -59,6 +59,7 @@ public class LoginController {
         stage.setTitle("Logowanie");
         stage.setScene(new Scene(parent));
         stage.show();
+        stage.centerOnScreen();
     }
 
     @FXML

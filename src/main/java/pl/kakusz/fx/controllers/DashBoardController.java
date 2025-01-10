@@ -3,7 +3,6 @@ package pl.kakusz.fx.controllers;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -13,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import pl.kakusz.database.managers.DatabaseManager;
@@ -20,11 +20,9 @@ import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
 import pl.kakusz.fx.ControllerManager;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.net.URI;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DashBoardController {
@@ -35,6 +33,8 @@ public class DashBoardController {
     @FXML
     private TextField userEmailField, courseIdField, passwordField, deleteCourseIdField;
     @FXML
+    FlowPane coursePane;
+    @FXML
     private Pagination pagination;
     @FXML
     private ComboBox<String> sortComboBox;
@@ -43,7 +43,7 @@ public class DashBoardController {
     @FXML
     private ImageView logoImage, logoImage2;
     @FXML
-    private Button logoutButton;
+    private Button logoutButton, openCourseButton;
     @FXML
     private TableView<Course> myCoursesTable;
     @FXML
@@ -84,7 +84,9 @@ public class DashBoardController {
         descriptionColumn.setStyle("-fx-alignment: CENTER;");
         priceColumn.setStyle("-fx-alignment: CENTER;");
 
+        openCourseButton.setOnAction(event -> openSelectedCourse());
 
+        populateRandomCoursesPane(allCourses);
     }
 
     private void createAdminButton() {
@@ -140,17 +142,60 @@ public class DashBoardController {
         return courseVBox;
     }
 
-    private void createCourseButton(Course course) {
-        VBox courseButton = new VBox(10);
+    private List<Course> pickRandomCourse(List<Course> courseList) {
+        Random random = new Random();
+        int randomIndex = random.nextInt(courseList.size());
+        return Collections.singletonList(courseList.get(randomIndex));
+    }
+    public void populateRandomCoursesPane(List<Course> allCourses) {
+        // Wyczyść obecnie wyświetlane kursy (jeśli istnieją)
+        coursePane.getChildren().clear();
 
-        // Sprawdź, czy użytkownik już posiada kurs
+        // Pobierz losowe kursy (przykładowo 3)
+        for (int i = 0; i < 3; i++) {
+            List<Course> pickedCourses = pickRandomCourse(allCourses);
+            pickedCourses.forEach(this::createPopularCourse);
+        }
+    }
+    private void createPopularCourse(Course course) {
+        // Podstawowa struktura VBox
+        VBox coursesBox = new VBox(10);
+
+        // Label nazwy kursu
+        Label label = new Label(course.getName());
+        label.setStyle("-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        // Label opisu kursu
+        Label description = new Label(course.getDescription());
+        description.setStyle("-fx-font-size: 14px; -fx-text-fill: white;");
+
+        // Przycisk zakupu kursu
+        Button button = new Button("Kup za " + course.getPrice() + " zł");
+        button.setStyle("-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;");
+        button.setOnAction(event -> handleBuyCourse(course.getId()));
+
+        // Dodanie elementów do VBox
+        coursesBox.getChildren().addAll(label, description, button);
+        coursesBox.setStyle("-fx-background-color: #2e3b54; -fx-padding: 15px;");
+        coursesBox.setMinHeight(200);
+        coursesBox.setMaxHeight(200);
+        coursesBox.setPrefWidth(300);
+
+        // Dodanie kursu do kontenera `coursePane`
+        coursePane.getChildren().add(coursesBox);
+    }
+
+    private void createCourseButton(Course course) {
+        VBox coursesBox = new VBox(10);
+
+
         boolean hasCourse = currentUser.getCourses().stream().anyMatch(c -> c.getId().equals(course.getId()));
 
-        // Ustal styl
+
         if (hasCourse) {
-            courseButton.setStyle("-fx-background-color: #7a7a7a; -fx-padding: 15px;"); // Szary kolor
+            coursesBox.setStyle("-fx-background-color: #7a7a7a; -fx-padding: 15px;");
         } else {
-            courseButton.setStyle("-fx-background-color: #2e3b54; -fx-padding: 15px;"); // Domyślny kolor
+            coursesBox.setStyle("-fx-background-color: #2e3b54; -fx-padding: 15px;");
         }
 
         Label label = new Label(course.getName());
@@ -164,16 +209,16 @@ public class DashBoardController {
         button.setPrefWidth(200);
         button.setAlignment(Pos.CENTER);
 
-        // Dezaktywuj przycisk, jeśli użytkownik już posiada kurs
+
         if (hasCourse) {
             button.setDisable(true);
         } else {
-            button.setOnAction(event -> handleBuyCourse(course.getId())); // Przekaż ID kursu
+            button.setOnAction(event -> handleBuyCourse(course.getId()));
         }
 
-        courseButton.getChildren().addAll(label, description, button);
-        courseButton.setAlignment(Pos.CENTER);
-        courseVBox.getChildren().add(courseButton);
+        coursesBox.getChildren().addAll(label, description, button);
+        coursesBox.setAlignment(Pos.CENTER);
+        this.courseVBox.getChildren().add(coursesBox);
     }
 
 
@@ -184,34 +229,32 @@ public class DashBoardController {
         stage.setMinWidth(930);
         stage.setScene(new Scene(parent));
         stage.show();
+        stage.centerOnScreen();
     }
 
     private void handleBuyCourse(Long courseId) {
 
 
-        Course course = DatabaseManager.getInstance().getCourseManager().getCourseById(courseId); // Pobierz kurs po ID
+        Course course = DatabaseManager.getInstance().getCourseManager().getCourseById(courseId);
 
         if (currentUser.getBalance() < course.getPrice()) {
             showAlert(Alert.AlertType.ERROR, "Błąd", "Nie masz wystarczających środków na koncie.");
             return;
         }
 
-        // Dodaj kurs do listy kursów użytkownika
+
         currentUser.getCourses().add(course);
 
-        // Zaktualizuj saldo użytkownika
+
         currentUser.setBalance(currentUser.getBalance() - course.getPrice());
 
-        // Zapisz zmiany w bazie danych
-        //DatabaseManager.getInstance().getUserManager().updateUserCourses(currentUser);
         DatabaseManager.getInstance().getUserManager().updateUserBalance(currentUser);
 
-        // Zaktualizuj etykietę stanu konta
+
         accountBalanceLabel.setText("Stan konta: " + String.format("%.2f", currentUser.getBalance()) + " zł");
 
         setupPagination();
 
-        // Informacja dla użytkownika
         showAlert(Alert.AlertType.INFORMATION, "Sukces", "Zakupiono kurs: " + course.getName());
     }
 
@@ -408,5 +451,29 @@ public class DashBoardController {
         } catch (NumberFormatException e) {
             System.out.println("Nieprawidłowy format ID kursu.");
         }
+    }
+
+    private void openSelectedCourse() {
+        Course selectedCourse = myCoursesTable.getSelectionModel().getSelectedItem();
+
+        if (selectedCourse != null) {
+            try {
+                String link = selectedCourse.getLink();
+                if (!link.startsWith("http://")&&!link.startsWith("https://")) {
+                    link = "http://" + link;
+                }
+
+                java.awt.Desktop.getDesktop().browse(new URI(link));
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się otworzyć linku!");
+            }
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Błąd", "Wybierz kurs przed otwarciem!");
+        }
+    }
+
+    public void handleOpenCourseButtonClick() {
+        openSelectedCourse();
     }
 }

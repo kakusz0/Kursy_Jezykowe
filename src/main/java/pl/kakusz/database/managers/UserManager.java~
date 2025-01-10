@@ -59,7 +59,7 @@ public class UserManager {
         try {
             transaction = session.beginTransaction();
 
-
+            // Aktualizacja danych użytkownika
             session.update(user);
 
             transaction.commit();
@@ -83,7 +83,7 @@ public class UserManager {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            session.close();
+            session.close(); // Zamknij sesję
         }
         return user;
     }

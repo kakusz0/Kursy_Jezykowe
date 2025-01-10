@@ -164,6 +164,7 @@ public class RegisterController {
         stage.setTitle("Rejestracja");
         stage.setScene(new Scene(root));
         stage.show();
+        stage.centerOnScreen();
     }
 
     @FXML
