@@ -158,28 +158,38 @@ public class DashBoardController {
         }
     }
     private void createPopularCourse(Course course) {
-        // Podstawowa struktura VBox
         VBox coursesBox = new VBox(10);
 
-        // Label nazwy kursu
+
+        boolean hasCourse = currentUser.getCourses().stream().anyMatch(c -> c.getId().equals(course.getId()));
+
+
+        if (hasCourse) {
+            coursesBox.setStyle("-fx-background-color: #7a7a7a; -fx-padding: 15px;");
+        } else {
+            coursesBox.setStyle("-fx-background-color: #2e3b54; -fx-padding: 15px;");
+        }
+
         Label label = new Label(course.getName());
         label.setStyle("-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;");
 
-        // Label opisu kursu
         Label description = new Label(course.getDescription());
         description.setStyle("-fx-font-size: 14px; -fx-text-fill: white;");
 
-        // Przycisk zakupu kursu
-        Button button = new Button("Kup za " + course.getPrice() + " zł");
-        button.setStyle("-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;");
-        button.setOnAction(event -> handleBuyCourse(course.getId()));
+        Button button = new Button(hasCourse ? "Posiadasz kurs" : "Kup za " + course.getPrice() + " zł");
+        button.setStyle("-fx-text-fill: white; -fx-background-color: #4CAF50; -fx-background-radius: 5px; -fx-font-size: 14px;");
+        button.setPrefWidth(200);
+        button.setAlignment(Pos.CENTER);
 
-        // Dodanie elementów do VBox
+
+        if (hasCourse) {
+            button.setDisable(true);
+        } else {
+            button.setOnAction(event -> handleBuyCourse(course.getId()));
+        }
+
         coursesBox.getChildren().addAll(label, description, button);
-        coursesBox.setStyle("-fx-background-color: #2e3b54; -fx-padding: 15px;");
-        coursesBox.setMinHeight(200);
-        coursesBox.setMaxHeight(200);
-        coursesBox.setPrefWidth(300);
+        coursesBox.setAlignment(Pos.CENTER);
 
         // Dodanie kursu do kontenera `coursePane`
         coursePane.getChildren().add(coursesBox);
