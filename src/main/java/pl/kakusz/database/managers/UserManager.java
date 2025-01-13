@@ -129,7 +129,14 @@ public class UserManager {
     public User getUserByEmail(String email) {
         return getUserByField("email", email);
     }
-
+    public User getUserWithCourses(String email) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery(
+                            "SELECT u FROM User u LEFT JOIN FETCH u.courses WHERE u.email = :email", User.class)
+                    .setParameter("email", email)
+                    .uniqueResult();
+        }
+    }
     public boolean updatePassword(String email, String oldPassword, String newPassword) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
