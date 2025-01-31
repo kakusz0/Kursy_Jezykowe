@@ -20,7 +20,7 @@ public class HibernateManager {
                     .buildSessionFactory();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ExceptionInInitializerError("Problem podczas tworzenia sesji: " + e.getMessage());
+            throw new ExceptionInInitializerError("Problem podczas tworzenia fabryki sesji: " + e.getMessage());
         }
     }
 

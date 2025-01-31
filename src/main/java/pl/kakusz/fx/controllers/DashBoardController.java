@@ -20,7 +20,6 @@ import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
 import pl.kakusz.fx.ControllerManager;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -291,6 +290,7 @@ public class DashBoardController {
         }
 
         pagination.setCurrentPageIndex(pageIndex);
+        pagination.setPrefHeight(Integer.MAX_VALUE);
         return courseVBox;
     }
 
@@ -393,7 +393,7 @@ public class DashBoardController {
         currentUser.setBalance(currentUser.getBalance() - course.getPrice());
 
         // Aktualizacja danych użytkownika w bazie
-        DatabaseManager.getInstance().getUserManager().updateUserBalance(currentUser);
+        DatabaseManager.getInstance().getUserManager().updateUser(currentUser);
 
         // Aktualizacja stanu konta w interfejsie
         accountBalanceLabel.setText("Stan konta: " + String.format("%.2f", currentUser.getBalance()) + " zł");
@@ -503,7 +503,7 @@ public class DashBoardController {
 
             // Aktualizacja balansu użytkownika
             user.setBalance(newBalance);
-            DatabaseManager.getInstance().getUserManager().updateUserBalance(user);
+            DatabaseManager.getInstance().getUserManager().updateUser(user);
 
             showAlert(Alert.AlertType.INFORMATION, "Sukces", "Balans użytkownika został zaktualizowany.");
         } catch (Exception ex) {
@@ -568,6 +568,7 @@ public class DashBoardController {
 
         // Dodanie do globalnego kontenera
         courseVBox.getChildren().add(coursesBox);
+
     }
 
     /**
@@ -650,6 +651,11 @@ public class DashBoardController {
 
             if (name.isEmpty() || description.isEmpty() || link.isEmpty()) {
                 showAlert(Alert.AlertType.ERROR, "Błąd", "Wszystkie pola muszą być wypełnione.");
+                return;
+            }
+
+            if (name.length() < 3) {
+                showAlert(Alert.AlertType.ERROR, "Błąd", "Nazwa musi miec wiecej niz 3 znaki.");
                 return;
             }
 
@@ -864,7 +870,7 @@ public class DashBoardController {
 
             // Aktualizacja konta użytkownika
             currentUser.setBalance(currentUser.getBalance() + amount);
-            DatabaseManager.getInstance().getUserManager().updateUserBalance(currentUser);
+            DatabaseManager.getInstance().getUserManager().updateUser(currentUser);
             showAlert(Alert.AlertType.INFORMATION, "Sukces", "Doładowano konto o " + amount + " zł.");
 
             amountField.clear();

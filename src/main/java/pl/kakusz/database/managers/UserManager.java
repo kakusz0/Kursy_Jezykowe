@@ -2,16 +2,12 @@ package pl.kakusz.database.managers;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.mindrot.jbcrypt.BCrypt;
 import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
-
-import javax.persistence.EntityTransaction;
 
 public class UserManager {
     private final SessionFactory sessionFactory;
@@ -35,24 +31,7 @@ public class UserManager {
         }
     }
 
-    public void updateUserCourses(User user) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = null;
-
-        try {
-            transaction = session.beginTransaction();
-            session.merge(user);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }finally {
-            session.close();
-        }
-    }
-    public void updateUserBalance(User user) {
+    public void updateUser(User user) {
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -65,7 +44,7 @@ public class UserManager {
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
-            throw new ArithmeticException("Nie udało się zaktualizować balansu użytkownika");
+            throw new ArithmeticException("Nie udało się zaktualizować użytkownika");
         }finally {
             session.close();
         }
