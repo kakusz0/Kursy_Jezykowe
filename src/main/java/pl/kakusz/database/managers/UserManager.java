@@ -1,5 +1,6 @@
 package pl.kakusz.database.managers;
 
+import javafx.scene.control.Alert;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Session;
@@ -8,6 +9,7 @@ import org.hibernate.Transaction;
 import org.mindrot.jbcrypt.BCrypt;
 import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
+import pl.kakusz.fx.AlertHelper;
 
 public class UserManager {
     private final SessionFactory sessionFactory;
@@ -44,7 +46,10 @@ public class UserManager {
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się zaktualizować użytkownika: " + e.getMessage());
+
             throw new ArithmeticException("Nie udało się zaktualizować użytkownika");
+
         }finally {
             session.close();
         }
@@ -61,6 +66,8 @@ public class UserManager {
                     .uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się, sproboj ponownie " + e.getMessage());
+
         } finally {
             session.close();
         }
@@ -97,6 +104,8 @@ public class UserManager {
                     .uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się, sproboj ponownie " + e.getMessage());
+
             return null;
         }
     }
@@ -136,6 +145,8 @@ public class UserManager {
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się, sproboj ponownie " + e.getMessage());
+
             return false;
         }
     }
@@ -150,6 +161,8 @@ public class UserManager {
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się, sproboj ponownie " + e.getMessage());
+
         }finally {
             session.close();
         }
@@ -167,6 +180,8 @@ public class UserManager {
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się, sproboj ponownie " + e.getMessage());
+
         }finally {
             session.close();
         }
@@ -185,6 +200,8 @@ public class UserManager {
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się, sproboj ponownie " + e.getMessage());
+
         }finally {
             session.close();
         }

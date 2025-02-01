@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import pl.kakusz.database.managers.DatabaseManager;
 import pl.kakusz.database.managers.UserManager;
 import pl.kakusz.database.objects.User;
+import pl.kakusz.fx.AlertHelper;
 import pl.kakusz.fx.ControllerManager;
 
 import java.io.IOException;
@@ -55,12 +56,12 @@ public class ResetPasswordController {
     private void handleResetPassword() {
 
         if (emailField.getText().isEmpty() || oldPasswordField.getText().isEmpty() || passwordField.getText().isEmpty() || repeatPasswordField.getText().isEmpty()) {
-            showAlert("Błąd", "Wszystkie pola muszą być wypełnione.", AlertType.ERROR);
+            AlertHelper.showAlert(AlertType.ERROR,"Błąd", "Wszystkie pola muszą być wypełnione.");
             return;
         }
 
         if (!passwordField.getText().equals(repeatPasswordField.getText())) {
-            showAlert("Błąd", "Nowe hasła nie są zgodne.", AlertType.ERROR);
+            AlertHelper.showAlert(AlertType.ERROR ,"Błąd", "Nowe hasła nie są zgodne.");
             return;
         }
 
@@ -69,29 +70,20 @@ public class ResetPasswordController {
         UserManager userManager = DatabaseManager.getInstance().getUserManager();
         User user = userManager.getUserByEmail(email);
         if (user == null) {
-            showAlert("Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.", AlertType.ERROR);
+            AlertHelper.showAlert(AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
             return;
         }
 
         String oldPassword = oldPasswordField.getText();
         boolean success = userManager.updatePassword(email, oldPassword, passwordField.getText());
         if (success) {
-            showAlert("Sukces", "Hasło zostało zresetowane pomyślnie.", AlertType.INFORMATION);
+            AlertHelper.showAlert(AlertType.CONFIRMATION, "Sukces", "Hasło zostało zresetowane pomyślnie.");
             clearFields();
         } else {
-            showAlert("Błąd", "Stare hasło jest niepoprawne. Spróbuj ponownie.", AlertType.ERROR);
+            AlertHelper.showAlert(AlertType.ERROR, "Błąd", "Stare hasło jest niepoprawne. Spróbuj ponownie.");
         }
     }
 
-    private void showAlert(String title, String message, AlertType type) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(type);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-    }
 
     private void clearFields() {
         emailField.clear();

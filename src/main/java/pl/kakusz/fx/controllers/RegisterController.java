@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
 import pl.kakusz.database.managers.DatabaseManager;
 import pl.kakusz.database.objects.User;
+import pl.kakusz.fx.AlertHelper;
 import pl.kakusz.fx.ControllerManager;
 
 import javax.imageio.ImageIO;
@@ -57,7 +58,7 @@ public class RegisterController {
         if (validateFields()) {
             User newUser = createUser();
             saveUser(newUser);
-            showAlert(Alert.AlertType.INFORMATION, "Sukces", "Rejestracja zakończona pomyślnie!");
+            AlertHelper.showAlert(Alert.AlertType.INFORMATION, "Sukces", "Rejestracja zakończona pomyślnie!");
 
             openWindow();
         }
@@ -79,37 +80,37 @@ public class RegisterController {
 
     private boolean validateFields() {
         if (usernameField.getText().isEmpty() || emailField.getText().isEmpty() || passwordField.getText().isEmpty() || repeatPasswordField.getText().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Wszystkie pola muszą być wypełnione.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Wszystkie pola muszą być wypełnione.");
             return false;
         }
 
         if (checkUserExistence(usernameField.getText())) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nazwa użytkownika jest już zajęta.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nazwa użytkownika jest już zajęta.");
             return false;
         }
 
         if (!isEmailValid(emailField.getText())) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Adres email jest niepoprawny.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Adres email jest niepoprawny.");
             return false;
         }
 
         if (checkEmailExistence(emailField.getText())) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Adres email jest już używany.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Adres email jest już używany.");
             return false;
         }
 
         if (passwordField.getText().length() < 5) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Hasło musi zawierać conajmniej 5 znaków.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Hasło musi zawierać conajmniej 5 znaków.");
             return false;
         }
 
         if (!passwordField.getText().equals(repeatPasswordField.getText())) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Hasła nie są identyczne.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Hasła nie są identyczne.");
             return false;
         }
 
         if (!termsCheckBox.isSelected()) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Musisz zaakceptować regulamin.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Musisz zaakceptować regulamin.");
             return false;
         }
 
@@ -125,15 +126,6 @@ public class RegisterController {
         return DatabaseManager.getInstance().getUserManager().emailExists(email);
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(alertType);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-    }
 
     private boolean isEmailValid(String email) {
         return Pattern.compile("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")

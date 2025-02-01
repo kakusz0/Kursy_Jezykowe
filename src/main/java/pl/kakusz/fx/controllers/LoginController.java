@@ -17,6 +17,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import pl.kakusz.database.managers.DatabaseManager;
 import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
+import pl.kakusz.fx.AlertHelper;
 import pl.kakusz.fx.ControllerManager;
 
 import java.io.IOException;
@@ -79,13 +80,6 @@ public class LoginController {
         }
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 
     private boolean isEmailValid(String email) {
         return Pattern.compile("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")
@@ -102,28 +96,28 @@ public class LoginController {
     }
     private boolean validateFields() {
         if (emailField.getText().isEmpty() || passwordField.getText().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Wszystkie pola muszą być wypełnione.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Wszystkie pola muszą być wypełnione.");
             return false;
         }
 
         if (!isEmailValid(emailField.getText())) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Adres email jest niepoprawny.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Adres email jest niepoprawny.");
             return false;
         }
 
         if (passwordField.getText().length() < 5) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Hasło musi zawierać conajmniej 5 znaków.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Hasło musi zawierać conajmniej 5 znaków.");
             return false;
         }
 
         User user = DatabaseManager.getInstance().getUserManager().getUserByEmail(emailField.getText());
         if (user == null) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
             return false;
         }
 
         if (!BCrypt.checkpw(passwordField.getText(), user.getPassword())) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Podane hasło jest niepoprawne.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Podane hasło jest niepoprawne.");
             return false;
         }
 

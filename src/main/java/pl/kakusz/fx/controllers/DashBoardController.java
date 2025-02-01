@@ -3,6 +3,7 @@ package pl.kakusz.fx.controllers;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -13,16 +14,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import pl.kakusz.database.managers.DatabaseManager;
 import pl.kakusz.database.objects.Course;
 import pl.kakusz.database.objects.User;
+import pl.kakusz.fx.AlertHelper;
 import pl.kakusz.fx.ControllerManager;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +53,7 @@ public class DashBoardController {
 
     /** Kontenery dla różnych sekcji aplikacji (administracja, kursy, profil użytkownika itp.). */
     @FXML
-    private VBox adminLayout, mainContainer, myCoursesContainer, adminContainer, courseContainer, transactionsContainer, courseVBox;
+    private VBox adminLayout, mainContainer, myCoursesContainer, courseContainer, transactionsContainer, courseVBox;
 
     /** Pola tekstowe do wprowadzania danych procesowanych w aplikacji. */
     @FXML
@@ -204,6 +209,35 @@ public class DashBoardController {
         openCourseButton.setOnAction(event -> openSelectedCourse());
         populateRandomCoursesPane(allCourses);
 
+
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            Platform.runLater(() -> {
+                try {
+                    String searchText = searchField.getText().toLowerCase();
+                    // Filtrowanie kursów w zależności od tekstu wyszukiwania
+                    filteredCourseList.setAll(allCourses.stream()
+                            .filter(course -> course.getName().toLowerCase().contains(searchText))
+                            .collect(Collectors.toList()));
+
+
+                    String selectedSort = sortComboBox.getValue();
+
+                    // Sortowanie wyników według opcji wybranej przez użytkownika
+                    if (selectedSort != null) {
+                        if (selectedSort.contains("największej")) {
+                            filteredCourseList.sort((c1, c2) -> Double.compare(c2.getPrice(), c1.getPrice()));
+                        } else {
+                            filteredCourseList.sort(Comparator.comparingDouble(Course::getPrice));
+                        }
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }, 0, 2, TimeUnit.SECONDS);
+
     }
 
     /**
@@ -213,8 +247,31 @@ public class DashBoardController {
      */
     private void createAdminButton() {
         Button adminButton = new Button("Admin");
+
         adminButton.setStyle("-fx-text-fill: white; -fx-background-color: #2e3b54; -fx-background-radius: 5;");
-        adminButton.setOnMouseClicked(event -> toggleVisibility(false, false, false, false, true));
+        adminButton.setOnMouseClicked(event -> {
+            try {
+                // Wczytaj FXML
+               FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdminController.fxml"));
+                StackPane adminContainer = loader.load();
+                System.out.println("load");
+
+                // Nowe okno (Stage)
+                Scene scene = new Scene(adminContainer);
+                Stage adminWindow = new Stage();
+                adminWindow.setTitle("Admin Panel");
+                adminWindow.setScene(scene);
+                adminWindow.show();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+
+
+
+        //adminButton.setOnMouseClicked(event -> toggleVisibility(false, false, false, false, true));
         adminLayout.getChildren().add(adminButton);
     }
 
@@ -248,6 +305,8 @@ public class DashBoardController {
 
         // Aktualizacja paginacji
         setupPagination();
+
+
     }
 
     /**
@@ -257,7 +316,7 @@ public class DashBoardController {
      */
     private void setupPagination() {
         pagination.setPageCount((int) Math.ceil((double) filteredCourseList.size() / ITEMS_PER_PAGE));
-        pagination.setCurrentPageIndex(0);
+        //pagination.setCurrentPageIndex(0);
         pagination.setMaxPageIndicatorCount(5);
         pagination.setPageFactory(this::createPage);
         showPage(0);
@@ -382,9 +441,39 @@ public class DashBoardController {
     private void handleBuyCourse(Long courseId) {
         Course course = DatabaseManager.getInstance().getCourseManager().getCourseById(courseId);
 
+
+        if(course == null){
+
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Kurs nie istnieje.");
+
+            Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                Platform.runLater(() -> {
+                    try {
+                        allCourses = DatabaseManager.getInstance().getCourseManager().loadCoursesList();
+                        filterCourses();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }, 2,  TimeUnit.SECONDS);
+
+            Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+                Platform.runLater(() -> {
+                    try {
+                        allCourses = DatabaseManager.getInstance().getCourseManager().loadCoursesList();
+                        filterCourses();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }, 2,  TimeUnit.SECONDS);
+            return;
+        }
         // Sprawdzenie, czy użytkownik ma wystarczające środki na zakup
         if (currentUser.getBalance() < course.getPrice()) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nie masz wystarczających środków na koncie.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie masz wystarczających środków na koncie.");
             return;
         }
 
@@ -401,7 +490,7 @@ public class DashBoardController {
         // Odświeżenie widoku kursów
         setupPagination();
 
-        showAlert(Alert.AlertType.INFORMATION, "Sukces", "Zakupiono kurs: " + course.getName());
+        AlertHelper.showAlert(Alert.AlertType.INFORMATION, "Sukces", "Zakupiono kurs: " + course.getName());
     }
 
     // ======================== OBSŁUGA SEKCJI PROFILE ========================
@@ -438,21 +527,21 @@ public class DashBoardController {
         String userEmail = userEmailFieldStats.getText();
 
         if (userEmail == null || userEmail.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Wprowadź poprawny adres e-mail użytkownika.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Wprowadź poprawny adres e-mail użytkownika.");
             return;
         }
 
         User userWithCourses = DatabaseManager.getInstance().getUserManager().getUserWithCourses(userEmail);
 
         if (userWithCourses == null) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nie znaleziono użytkownika o podanym e-mailu.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie znaleziono użytkownika o podanym e-mailu.");
             return;
         }
 
         List<Course> purchasedCourses = userWithCourses.getCourses();
 
         if (purchasedCourses.isEmpty()) {
-            showAlert(Alert.AlertType.INFORMATION, "Informacja", "Użytkownik nie posiada zakupionych kursów.");
+            AlertHelper.showAlert(Alert.AlertType.INFORMATION, "Informacja", "Użytkownik nie posiada zakupionych kursów.");
             return;
         }
 
@@ -481,7 +570,7 @@ public class DashBoardController {
 
             // Walidacja pól
             if (userEmail == null || userEmail.isEmpty() || balanceText == null || balanceText.isEmpty()) {
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Proszę podać poprawny e-mail i balans.");
+                AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Proszę podać poprawny e-mail i balans.");
                 return;
             }
 
@@ -489,7 +578,7 @@ public class DashBoardController {
             try {
                 newBalance = Double.parseDouble(balanceText);
             } catch (NumberFormatException e) {
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Proszę podać poprawny format liczby dla balansu.");
+                AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Proszę podać poprawny format liczby dla balansu.");
                 return;
             }
 
@@ -497,7 +586,7 @@ public class DashBoardController {
             User user = DatabaseManager.getInstance().getUserManager().getUserByEmail(userEmail);
 
             if (user == null) {
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Nie znaleziono użytkownika o podanym e-mailu.");
+                AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie znaleziono użytkownika o podanym e-mailu.");
                 return;
             }
 
@@ -505,10 +594,10 @@ public class DashBoardController {
             user.setBalance(newBalance);
             DatabaseManager.getInstance().getUserManager().updateUser(user);
 
-            showAlert(Alert.AlertType.INFORMATION, "Sukces", "Balans użytkownika został zaktualizowany.");
+            AlertHelper.showAlert(Alert.AlertType.INFORMATION, "Sukces", "Balans użytkownika został zaktualizowany.");
         } catch (Exception ex) {
             ex.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd podczas aktualizacji balansu użytkownika.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd podczas aktualizacji balansu użytkownika.");
         }
     }
 
@@ -599,10 +688,10 @@ public class DashBoardController {
                 java.awt.Desktop.getDesktop().browse(new URI(link));
             } catch (Exception e) {
                 e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się otworzyć linku!");
+                AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się otworzyć linku!");
             }
         } else {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Wybierz kurs przed otwarciem!");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Wybierz kurs przed otwarciem!");
         }
     }
 
@@ -631,141 +720,10 @@ public class DashBoardController {
         mainContainer.setVisible(showMain);
         transactionsContainer.setVisible(showTransactions);
         myCoursesContainer.setVisible(showMyCourses);
-        adminContainer.setVisible(showAdmin);
-    }
-
-    // ======================== OBSŁUGA ADMINISTRATORA ========================
-
-    /**
-     * Obsługuje dodawanie nowego kursu do systemu.
-     *
-     * <p>Dodaje kurs do bazy danych na podstawie danych wprowadzonych przez administratora.</p>
-     */
-    @FXML
-    private void handleAddCourse() {
-        try {
-            String name = courseNameField.getText();
-            String description = courseDescriptionField.getText();
-            double price = Double.parseDouble(coursePriceField.getText());
-            String link = courseLinkField.getText();
-
-            if (name.isEmpty() || description.isEmpty() || link.isEmpty()) {
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Wszystkie pola muszą być wypełnione.");
-                return;
-            }
-
-            if (name.length() < 3) {
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Nazwa musi miec wiecej niz 3 znaki.");
-                return;
-            }
-
-            // Dodanie kursu do bazy danych
-            Course course = new Course();
-            course.setName(name);
-            course.setDescription(description);
-            course.setPrice(price);
-            course.setLink(link);
-
-            DatabaseManager.getInstance().getCourseManager().addCourse(course);
-            showAlert(Alert.AlertType.INFORMATION, "Sukces", "Dodano nowy kurs: " + name);
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Cena kursu musi być liczbą.");
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Wystąpił problem podczas dodawania kursu.");
-        }
-    }
-
-    /**
-     * Obsługuje usunięcie kursu z systemu.
-     *
-     * @see DatabaseManager#getCourseManager()
-     */
-    @FXML
-    private void handleDeleteCourse() {
-        try {
-            String courseName = deleteCourseIdField.getText();
-            Course course = DatabaseManager.getInstance().getCourseManager().getCourseByName(courseName);
-
-            if (course == null) {
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Kurs o nazwie " + courseName + " nie istnieje.");
-            } else {
-                DatabaseManager.getInstance().getCourseManager().deleteCourse(courseName);
-                showAlert(Alert.AlertType.INFORMATION, "Sukces", "Kurs został usunięty.");
-            }
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się usunąć kursu.");
-        }
+        //adminContainer.setVisible(showAdmin);
     }
 
 
-// ======================== OBSŁUGA UŻYTKOWNIKÓW ========================
-
-    /**
-     * Obsługuje przypisanie kursu do użytkownika.
-     *
-     * <p>Na podstawie podanego adresu e-mail użytkownika i nazwy kursu,
-     * metoda przypisuje kurs do użytkownika w bazie danych.</p>
-     */
-    @FXML
-    private void handleAssignCourse() {
-        String userEmail = userEmailField.getText();
-        String courseName = courseIdField.getText();
-
-        // Pobranie użytkownika na podstawie e-maila
-        User userByEmail = DatabaseManager.getInstance().getUserManager().getUserByEmail(userEmail);
-
-        if (userByEmail == null) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
-            return;
-        }
-
-        // Przypisanie kursu użytkownikowi
-        DatabaseManager.getInstance().getUserManager().handleAssignCourse(userByEmail, courseName);
-        showAlert(Alert.AlertType.INFORMATION, "Sukces", "Przypisano kurs " + courseName + " użytkownikowi o e-mailu " + userEmail);
-    }
-
-    /**
-     * Obsługuje usunięcie przypisanego kursu od użytkownika.
-     *
-     * <p>Na podstawie podanego adresu e-mail i nazwy kursu usuwa przypisanie kursu
-     * od użytkownika w bazie danych.</p>
-     */
-    @FXML
-    private void handleRemoveCourse() {
-        String userEmail = userEmailField.getText();
-        String courseName = courseIdField.getText();
-
-        // Pobranie użytkownika na podstawie e-maila
-        User userByEmail = DatabaseManager.getInstance().getUserManager().getUserByEmail(userEmail);
-
-        if (userByEmail == null) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
-            return;
-        }
-
-        // Usunięcie przypisanego kursu
-        DatabaseManager.getInstance().getUserManager().handleRemoveCourse(userByEmail, courseName);
-        showAlert(Alert.AlertType.INFORMATION, "Sukces", "Usunięto kurs " + courseName + " z użytkownika o e-mailu " + userEmail);
-    }
-
-    /**
-     * Wyświetla okno głównego panelu aplikacji.
-     *
-     * <p>Metoda inicjalizuje widok i prezentuje okno główne aplikacji
-     * przy użyciu FXML. Ustawia minimalne wymiary okna, nazwę tytułu,
-     * a także wyśrodkowuje okno na ekranie użytkownika.</p>
-     *
-     * <h3>Działanie:</h3>
-     * <ul>
-     *   <li>Ładuje plik FXML widoku panelu głównego (<code>Dashboard.fxml</code>).</li>
-     *   <li>Ustawia tytuł okna: "Panel główny".</li>
-     *   <li>Określa minimalne rozmiary okna: szerokość 930 px, wysokość 1000 px.</li>
-     *   <li>Tworzy scenę i wyświetla okno wyśrodkowane na ekranie.</li>
-     * </ul>
-     *
-     * @param stage instancja obiektu `Stage`, na której ma zostać załadowany widok.
-     * @throws IOException w przypadku problemów z załadowaniem pliku FXML.
-     */
     public void showWindow(Stage stage) throws IOException {
 
 
@@ -788,55 +746,8 @@ public class DashBoardController {
         stage.centerOnScreen();
     }
 
-    /**
-     * Obsługuje usuwanie użytkownika z bazy danych.
-     *
-     * <p>Na podstawie podanego adresu e-mail, metoda usuwa użytkownika z bazy danych.
-     * Weryfikuje, czy użytkownik istnieje i zabrania usuwania samego administratora.</p>
-     */
-    @FXML
-    private void handleDeleteUser() {
-        String userEmail = userEmailField.getText();
 
-        // Pobranie użytkownika z bazy
-        User userByEmail = DatabaseManager.getInstance().getUserManager().getUserByEmail(userEmail);
 
-        if (userByEmail == null) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
-            return;
-        } else if (userByEmail.getEmail().equals(currentUser.getEmail())) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nie możesz usunąć siebie.");
-            return;
-        }
-
-        // Usuwanie użytkownika
-        DatabaseManager.getInstance().getUserManager().deleteUser(userByEmail);
-        showAlert(Alert.AlertType.INFORMATION, "Sukces", "Użytkownik " + userEmail + " został usunięty.");
-    }
-
-    /**
-     * Obsługuje resetowanie hasła użytkownika.
-     *
-     * <p>Wykorzystuje podany adres e-mail, aby zidentyfikować użytkownika
-     * i umożliwić aktualizację jego hasła w bazie danych.</p>
-     */
-    @FXML
-    private void handleResetPassword() {
-        String userEmail = userEmailField.getText();
-        String newPassword = passwordField.getText();
-
-        // Pobranie użytkownika z bazy
-        User userByEmail = DatabaseManager.getInstance().getUserManager().getUserByEmail(userEmail);
-
-        if (userByEmail == null) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Użytkownik o podanym adresie e-mail nie istnieje.");
-            return;
-        }
-
-        // Resetowanie hasła użytkownika
-        DatabaseManager.getInstance().getUserManager().updatePassword(userEmail, userByEmail.getPassword(), newPassword);
-        showAlert(Alert.AlertType.INFORMATION, "Sukces", "Hasło użytkownika zostało zaktualizowane.");
-    }
 
     // ======================== OBSŁUGA TRANSAKCJI ========================
 
@@ -864,20 +775,20 @@ public class DashBoardController {
             double amount = Double.parseDouble(amountInput);
 
             if (amount <= 0) {
-                showAlert(Alert.AlertType.ERROR, "Błąd", "Kwota musi być większa od zera.");
+                AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Kwota musi być większa od zera.");
                 return;
             }
 
             // Aktualizacja konta użytkownika
             currentUser.setBalance(currentUser.getBalance() + amount);
             DatabaseManager.getInstance().getUserManager().updateUser(currentUser);
-            showAlert(Alert.AlertType.INFORMATION, "Sukces", "Doładowano konto o " + amount + " zł.");
+            AlertHelper.showAlert(Alert.AlertType.INFORMATION, "Sukces", "Doładowano konto o " + amount + " zł.");
 
             amountField.clear();
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Niepoprawna liczba. Wprowadź liczbę.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Niepoprawna liczba. Wprowadź liczbę.");
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd podczas doładowania konta.");
+            AlertHelper.showAlert(Alert.AlertType.ERROR, "Błąd", "Wystąpił błąd podczas doładowania konta.");
             e.printStackTrace();
         }
     }
@@ -924,20 +835,5 @@ public class DashBoardController {
         }
     }
 
-    /**
-     * Wyświetla alert z komunikatem o podanym typie.
-     *
-     * @param alertType typ alertu (np. informacja, błąd).
-     * @param title     tytuł alertu.
-     * @param message   treść komunikatu do wyświetlenia.
-     */
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(alertType);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-    }
+
 }

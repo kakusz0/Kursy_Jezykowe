@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- Główny kontener StackPane -->
+
+<StackPane alignment="CENTER" prefHeight="630.0" prefWidth="900.0" style="-fx-background-color: #2e3b54;" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.kakusz.fx.controllers.AdminController">
+
+    <!-- ScrollPane w kontenerze StackPane -->
+    <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+        <!-- VBox (adminContainer), którego zawartość jest wyśrodkowana -->
+        <VBox fx:id="adminContainer" alignment="CENTER" spacing="20" style="-fx-background-color: #394b61; -fx-padding: 20; -fx-background-radius: 10;" VBox.vgrow="ALWAYS">
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 10; -fx-background-color: #2e3b54; -fx-background-radius: 10;">
+                    <Label style="-fx-text-fill: white; -fx-font-size: 16px;" text="Dodaj Nowy Kurs" />
+
+                    <TextField fx:id="courseNameField" promptText="Nazwa kursu" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+                    <TextField fx:id="courseDescriptionField" promptText="Opis kursu" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+                    <TextField fx:id="coursePriceField" promptText="Cena kursu" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+                    <TextField fx:id="courseLinkField" promptText="Link do kursu" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+
+                    <Button fx:id="addCourseButton" onAction="#handleAddCourse" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Dodaj kurs" />
+                </VBox>
+
+                <!-- Usuń Kurs Section -->
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 10; -fx-background-color: #2e3b54; -fx-background-radius: 10;">
+                    <Label style="-fx-text-fill: white; -fx-font-size: 16px;" text="Usuń Kurs" />
+
+                    <TextField fx:id="deleteCourseIdField" promptText="Nazwa Kursu" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+
+                    <Button fx:id="deleteCourseButton" onAction="#handleDeleteCourse" style="-fx-background-color: #d32f2f; -fx-text-fill: white;" text="Usuń kurs" />
+                </VBox>
+
+                <!-- Zarządzanie Użytkownikiem Section -->
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 10; -fx-background-color: #2e3b54; -fx-background-radius: 10;">
+                    <Label style="-fx-text-fill: white; -fx-font-size: 16px;" text="Zarządzanie Użytkownikiem" />
+
+                    <TextField fx:id="userEmailField" promptText="Email Użytkownika" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+                    <TextField fx:id="passwordField" promptText="Nowe hasło dla Użytkownika" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+
+                    <HBox alignment="CENTER" spacing="10">
+                        <Button fx:id="deleteUserButton" onAction="#handleDeleteUser" style="-fx-background-color: #d32f2f; -fx-text-fill: white;" text="Usuń Użytkownika" />
+                        <Button fx:id="resetPasswordButton" onAction="#handleResetPassword" style="-fx-background-color: #ffa500; -fx-text-fill: white;" text="Zmień Hasło" />
+                    </HBox>
+
+                    <Label style="-fx-text-fill: white; -fx-font-size: 14px;" text="Przypisz/Usuń Kurs" />
+                    <TextField fx:id="courseIdField" promptText="Nazwa Kursu" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+
+                    <HBox alignment="CENTER" prefHeight="56.0" prefWidth="821.0" spacing="10">
+                        <Button fx:id="assignCourseButton" onAction="#handleAssignCourse" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Dodaj Kurs" />
+                        <Button fx:id="removeCourseButton" onAction="#handleRemoveCourse" style="-fx-background-color: #d32f2f; -fx-text-fill: white;" text="Usuń Kurs" />
+                    </HBox>
+
+                    <!-- Zmiana Balansu -->
+                    <Label style="-fx-text-fill: white; -fx-font-size: 14px;" text="Zmień Balans Użytkownika" />
+                    <TextField fx:id="userBalanceField" promptText="Nowy balans użytkownika" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+
+                    <Button fx:id="updateBalanceButton" onAction="#updateUserBalance" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Zmień Balans" />
+            <Button fx:id="checkBalanceButton"
+                    onAction="#checkUserBalance"
+                    text="Sprawdź Balans"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+                </VBox>
+
+                <!-- Statystyki Użytkownika Section -->
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 10; -fx-background-color: #2e3b54; -fx-background-radius: 10;">
+                    <Label style="-fx-text-fill: white; -fx-font-size: 16px;" text="Statystyki Użytkownika" />
+
+                    <Label style="-fx-text-fill: white; -fx-font-size: 14px;" text="Kursy zakupione przez użytkownika:" />
+
+                    <!-- Pole na email użytkownika, wymagane do wprowadzenia -->
+                    <TextField fx:id="userEmailFieldStats" promptText="Wprowadź email użytkownika" style="-fx-background-color: #394b61; -fx-text-fill: white;" />
+
+                    <!-- Przycisk do sprawdzenia kursów -->
+                    <Button fx:id="checkUserCoursesButton" onAction="#handleCheckUserCourses" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Sprawdź kursy" />
+
+<ListView fx:id="userPurchasedCoursesList"
+            style="-fx-background-color: #394b61; -fx-text-fill: white;"
+            minHeight="100.0"
+            prefHeight="200.0"
+            maxHeight="400.0" />
+            </VBox>
+
+       </VBox>
+
+    </ScrollPane>
+
+
+</StackPane>
